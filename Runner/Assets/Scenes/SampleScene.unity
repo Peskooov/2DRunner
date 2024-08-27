@@ -520,10 +520,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab16f5fdcc39dc0469d5bca9b6d5f20a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpForce: 0.3
+  jumpForce: 0.8
   runSpeed: 5
-  maxJumpForce: 0.6
-  jumpHoldTime: 0.2
+  maxJumpForce: 1.5
+  jumpHoldTime: 0.3
   slideSpeed: 10
   slideJumpBoost: 0.5
 --- !u!1 &1683644015

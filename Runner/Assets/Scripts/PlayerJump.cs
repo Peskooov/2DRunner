@@ -13,6 +13,8 @@ public class PlayerJump : MonoBehaviour
     private bool isSliding; // Проверка, активен ли скольжение
     private float jumpStartTime; // Время начала прыжка
 
+    private float checkTime; 
+
     private Rigidbody rb;
 
 
@@ -33,28 +35,35 @@ public class PlayerJump : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(Vector3.up);
         AutoRun(runSpeed);
 
         // Проверка нажатия кнопки прыжка (по умолчанию пробел)
-        if (Input.GetKey(KeyCode.W) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.W) && !isJumping && isGrounded)
         {
-            isJumping = true;
-            jumpStartTime = Time.time;
+            
+            jumpStartTime = Time.time; 
             PerformJump(jumpForce);
+            isJumping = true;
         }
 
         // Проверка удержания кнопки прыжка
-        if (Input.GetKey(KeyCode.W) && isJumping)
+        if (Input.GetKey(KeyCode.W) && isJumping && !isGrounded)
         {
-            if (Time.time - jumpStartTime < jumpHoldTime)
-            {
-                // Увеличение высоты прыжка
+            if (Time.time - jumpStartTime > jumpHoldTime)
                 PerformJump(maxJumpForce);
-            }
+            // Увеличение высоты прыжка
+
+            //   checkTime = Time.time;
+
+            // if(Time.time - checkTime > jumpHoldTime)
+            // isJumping = false;
+            else isJumping = false;
+            
         }
 
         // Если кнопка отпущена, завершить прыжок
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKeyUp(KeyCode.W))
         {
             isJumping = false;
         }
@@ -62,7 +71,7 @@ public class PlayerJump : MonoBehaviour
         if (Input.GetKey(KeyCode.S) && isGrounded) // Замените "Fire2" на вашу кнопку для скольжения
         {
             isSliding = true;
-            Slide();
+            AutoRun(slideSpeed);
         }
         else
         {
@@ -73,6 +82,9 @@ public class PlayerJump : MonoBehaviour
         if (Input.GetKey(KeyCode.W) && isSliding && isGrounded)
         {
             PerformJump(jumpForce + slideJumpBoost);
+
+            isGrounded = false;
+            isSliding = false;
         }
     }
 
@@ -82,15 +94,9 @@ public class PlayerJump : MonoBehaviour
     }
 
     void PerformJump(float force)
-    {
-        // Добавление силы прыжка
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // Обнуление вертикальной скорости
-        rb.AddForce(Vector3.up * force, ForceMode.Impulse);
-    }
-
-    void Slide()
-    {
-        // При скольжении персонаж получает дополнительную скорость
-        AutoRun(slideSpeed);
+    {       
+            // Добавление силы прыжка
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // Обнуление вертикальной скорости
+            rb.AddForce(Vector3.up * force, ForceMode.Impulse);    
     }
 }

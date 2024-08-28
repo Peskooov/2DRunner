@@ -2,20 +2,22 @@ using UnityEngine;
 
 public class AnimatorsChange : MonoBehaviour
 {
-    [SerializeField] private PlayerInputController playerInputController;
+    [SerializeField] private Player player;
     [SerializeField] private AnimatorsAssetMenu assetMenu;
     [SerializeField] private Animator animator;
 
     private void Start()
     {
-        playerInputController.RunEvent += OnRun;
-        playerInputController.JumpEvent += OnJump;
+        player.RunEvent += OnRun;
+        player.JumpEvent += OnJump;
+        player.SlideEvent += OnSlide;
     }
 
     private void OnDestroy()
     {
-        playerInputController.RunEvent -= OnRun;
-        playerInputController.JumpEvent -= OnJump;
+        player.RunEvent -= OnRun;
+        player.JumpEvent -= OnJump;
+        player.SlideEvent -= OnSlide;
     }
     
 
@@ -27,6 +29,11 @@ public class AnimatorsChange : MonoBehaviour
     private void OnJump()
     {
         ChangeController(assetMenu.animatorJump);
+    }
+
+    private void OnSlide()
+    {
+        ChangeController(assetMenu.animatorSlide);
     }
 
     private void ChangeController(RuntimeAnimatorController newRuntimeAnimatorController)

@@ -13,6 +13,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float slideSpeed = 10f; // Скорость скольжения
     [SerializeField] private float slideControlTime = 0.6f; // Максимальное время скольжения
 
+    [SerializeField] private Transform rayTransform; // пустой объект, дочерний от игрока, расположен внизу модели
+    [SerializeField] private float raycastDistance = 1.5f; // Расстояние, на которое будет выпущен рейкаст
+
     private bool isGrounded; // Проверка на земле ли персонаж
     private bool isJumping; // Проверка, нажата ли кнопка прыжка
     private bool isSliding; // Проверка, активен ли скольжение
@@ -27,12 +30,13 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         transform.up = Vector3.up;
         transform.position = new Vector3(0, transform.position.y, transform.position.z);
 
-        Slide();
+        if (IsBarrier() == false)
+            Slide();
 
         Jump();
     }
@@ -41,13 +45,15 @@ public class Player : MonoBehaviour
     {
         RunEvent?.Invoke();
 
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        rb.velocity = new Vector3(0f, rb.velocity.y, speed);
+        // transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
     private void Slide()
     {
         if (Input.GetKey(KeyCode.S))
         {
+            Debug.Log("press S");
             if (isGrounded)
                 isSliding = true;
         }
@@ -88,12 +94,37 @@ public class Player : MonoBehaviour
             JumpEvent?.Invoke();
             if ((jumpTime += Time.deltaTime) < jumpControlTime)
             {
-                rb.AddForce(Vector3.up * jumpForce / (jumpTime * 10));
+                rb.velocity = new Vector3(0f, jumpForce / (jumpTime * 10), rb.velocity.z);
+                //rb.AddForce(Vector3.up * jumpForce / (jumpTime * 10));
             }
         }
         else
         {
             jumpTime = 0;
+        }
+    }
+
+    private bool IsBarrier()
+    {
+        // Выпускаем рейкаст
+        RaycastHit hit;
+
+#if UNITY_EDITOR
+        // Визуализация рейкаста (для отладки)
+        Debug.DrawRay(rayTransform.transform.position, transform.forward * raycastDistance, Color.red);
+#endif
+
+        if (Physics.Raycast(rayTransform.transform.position, transform.forward, out hit, raycastDistance))
+        {
+            // Если рейкаст попал в коллайдер
+            Debug.Log("Hit object: " + hit.collider.name);
+            return true;
+        }
+        else
+        {
+            // Если рейкаст не попал в коллайдер
+            Debug.Log("No hit");
+            return false;
         }
     }
 
